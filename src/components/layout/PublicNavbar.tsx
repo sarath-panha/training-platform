@@ -87,22 +87,51 @@ export const PublicNavbar = () => {
                       <User className="w-4 h-4" />
                     </div>
                   )}
-                  <span className="text-sm font-medium text-slate-700">
-                    {session.user.name?.split(" ")[0]}
-                  </span>
+                  <div className="text-left hidden lg:block">
+                    <span className="text-sm font-medium text-slate-700 block leading-none">
+                      {session.user.name?.split(" ")[0]}
+                    </span>
+                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                      {(session.user as any).role}
+                    </span>
+                  </div>
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-slate-100 py-1 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-100 py-1 z-50 animate-in fade-in slide-in-from-top-2">
                     <div className="px-4 py-3 border-b border-slate-50">
-                      <p className="text-sm font-medium text-slate-900">
-                        {session.user.name}
-                      </p>
+                      <div className="flex justify-between items-center mb-1">
+                        <p className="text-sm font-medium text-slate-900">
+                          {session.user.name}
+                        </p>
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border 
+                          ${
+                            (session.user as any).role === "admin"
+                              ? "bg-rose-50 text-rose-700 border-rose-200"
+                              : (session.user as any).role === "instructor"
+                                ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                                : "bg-slate-100 text-slate-600 border-slate-200"
+                          }`}
+                        >
+                          {(session.user as any).role}
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-500 truncate">
                         {session.user.email}
                       </p>
                     </div>
+
                     <div className="py-1">
+                      {/* Admin Link */}
+                      {(session.user as any).role === "admin" && (
+                        <Link
+                          href="/admin"
+                          className="block px-4 py-2 text-sm text-indigo-600 font-medium hover:bg-indigo-50 border-b border-slate-50"
+                        >
+                          Go to Admin Console
+                        </Link>
+                      )}
                       <Link
                         href="/my-learning"
                         className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"

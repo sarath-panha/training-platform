@@ -6,8 +6,9 @@ export interface IEnrollment extends Document {
   enrolledAt: Date;
   completedLessons: string[];
   progress: number;
-  status: "pending" | "active" | "rejected"; // New field
-  transactionId?: string; // New field
+  status: "pending" | "active" | "rejected";
+  transactionId?: string;
+  amount: number; // New field: Snapshot of price paid
 }
 
 const EnrollmentSchema = new Schema(
@@ -23,6 +24,7 @@ const EnrollmentSchema = new Schema(
       default: "pending",
     },
     transactionId: { type: String },
+    amount: { type: Number, default: 0 }, // Store price at time of enrollment
   },
   { timestamps: true },
 );

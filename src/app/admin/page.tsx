@@ -1,58 +1,87 @@
 "use client";
 
-import { Users, Plus, ChevronRight } from "lucide-react";
-
-// Components
-import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { CourseTable } from "@/components/dashboard/CourseTable";
-import { TasksWidget } from "@/components/dashboard/TasksWidget";
-import { SystemStatus } from "@/components/dashboard/SystemStatus";
-
-// Data
-import { COURSES, STATS, PENDING_TASKS } from "@/data/mockData";
+import React, { useEffect, useState } from "react";
+import { AnalyticsStats } from "@/components/analytics/AnalyticsStats";
+import { SimpleBarChart } from "@/components/analytics/SimpleBarChart";
+import { RecentSales } from "@/components/dashboard/RecentSales";
+import { Card } from "@/components/ui/Card";
+import { Loader2 } from "lucide-react";
 
 export default function Dashboard() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/analytics");
+        if (res.ok) {
+          setData(await res.json());
+        }
+      } catch (error) {
+        console.error("Failed to load dashboard", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      </div>
+    );
+  }
+
+  if (!data)
+    return <div className="p-8 text-center">Failed to load dashboard.</div>;
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
       {/* Action Section */}
-      <section className="flex flex-col md:flex-row gap-6 md:items-center justify-between py-2">
+      <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between">
         <div>
           <h2 className="text-3xl font-light text-slate-900 tracking-tight">
             Platform <span className="font-semibold">Overview</span>
           </h2>
           <p className="text-slate-500 mt-2">
-            Manage content, users, and system performance.
+            Welcome back! Here is what is happening with your courses today.
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-full hover:bg-slate-50 transition-colors flex items-center gap-2">
-            <Users className="w-4 h-4" /> Invite Instructor
-          </button>
-          <button className="px-6 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-full hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Create Course
+          <button
+            onClick={() => (window.location.href = "/admin/courses/new")}
+            className="px-6 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-full hover:bg-slate-800 transition-colors shadow-sm"
+          >
+            + Create New Course
           </button>
         </div>
-      </section>
+      </div>
 
-      {/* Widgets */}
-      <StatsGrid stats={STATS} />
+      {/* Stats Widgets */}
+      <AnalyticsStats summary={data.summary} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-normal text-slate-900">
-              Recent Courses
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Chart */}
+        <div className="lg:col-span-2">
+          <Card className="p-6 h-full">
+            <h3 className="text-lg font-bold text-slate-900 mb-6">
+              Revenue Overview
             </h3>
-            <button className="text-sm font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 uppercase tracking-wide">
-              View All Courses <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-          <CourseTable courses={COURSES} />
+            <SimpleBarChart data={data.chartData} />
+          </Card>
         </div>
 
+        {/* Recent Sales Feed */}
         <div className="space-y-6">
-          <TasksWidget tasks={PENDING_TASKS} />
-          <SystemStatus />
+          <Card className="p-6 h-full">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">
+              Recent Sales
+            </h3>
+            <RecentSales sales={data.recentEnrollments || []} />
+          </Card>
         </div>
       </div>
     </div>

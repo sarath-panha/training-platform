@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               image: user.image,
               provider: "google",
-              role: "user",
+              role: "participant", // Default role
             });
           }
           return true;
@@ -65,15 +65,23 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async session({ session }) {
-      // Add user ID and Role to session
-      if (session.user?.email) {
+    // FIX: Fetch User Role for the JWT
+    async jwt({ token }) {
+      if (token.email) {
         await connectDB();
-        const dbUser = await User.findOne({ email: session.user.email });
+        const dbUser = await User.findOne({ email: token.email });
         if (dbUser) {
-          (session.user as any).id = dbUser._id.toString();
-          (session.user as any).role = dbUser.role;
+          token.id = dbUser._id.toString();
+          token.role = dbUser.role; // Persist role to token
         }
+      }
+      return token;
+    },
+    // Pass JWT data to the Session (for client-side useSession)
+    async session({ session, token }) {
+      if (session.user && token) {
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
       }
       return session;
     },

@@ -1,40 +1,28 @@
-"use client";
+import React from "react";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/authOptions";
 
-import React, { useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
-import { MobileNav } from "@/components/layout/MobileNav";
+// Client-side wrapper for state (Sidebar open/close)
+import { AdminStateWrapper } from "./AdminStateWrapper";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+}) {
+  const session = await getServerSession(authOptions);
 
-  return (
-    <div className="min-h-screen bg-white pb-[80px] lg:pb-0">
-      {/* Mobile Overlay */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/20 z-40 lg:hidden backdrop-blur-sm"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+  // 1. Check if user is logged in
+  if (!session) {
+    redirect("/auth?callbackUrl=/admin");
+  }
 
-      {/* Shared Layout Components */}
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+  // 2. Check if user has admin privileges
+  if (session.user.role !== "admin") {
+    // Optionally redirect to a "Not Authorized" page or Home
+    redirect("/");
+  }
 
-      {/* Main Content Area */}
-      <main className="lg:ml-[280px] min-h-screen transition-all duration-300">
-        <Header onMenuClick={() => setIsSidebarOpen(true)} />
-        {children}
-      </main>
-
-      <MobileNav />
-    </div>
-  );
+  return <AdminStateWrapper>{children}</AdminStateWrapper>;
 }

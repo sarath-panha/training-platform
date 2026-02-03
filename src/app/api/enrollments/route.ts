@@ -9,8 +9,6 @@ import User from "@/models/User";
 export async function GET() {
   try {
     await connectDB();
-
-    // Ensure models are registered for population
     const userModel = User;
     const courseModel = Course;
 
@@ -55,19 +53,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Already enrolled" });
     }
 
-    // Create Enrollment (Pending by default)
+    // Fetch Course to get current Price
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+    }
+
+    // Create Enrollment with Price Snapshot
     await Enrollment.create({
       user: userId,
       course: courseId,
       transactionId,
-      status: "pending",
+      amount: course.price || 0, // Save price snapshot
+      status: transactionId ? "pending" : "active", // Auto-activate free courses
     });
 
-    // Note: We do NOT increment course enrollment count here.
-    // That should happen only upon approval.
+    // Auto-increment if free
+    if (!transactionId || course.price === 0) {
+      await Course.findByIdAndUpdate(courseId, { $inc: { enrollments: 1 } });
+    }
 
     return NextResponse.json(
-      { message: "Enrollment submitted for approval" },
+      { message: "Enrollment successful" },
       { status: 201 },
     );
   } catch (error) {

@@ -6,7 +6,6 @@ import Course from "@/models/Course";
 async function getCourse(id: string) {
   await connectDB();
   const course = await Course.findById(id).lean();
-
   if (!course) return null;
 
   return {
@@ -14,9 +13,8 @@ async function getCourse(id: string) {
     _id: course._id.toString(),
     createdAt: course.createdAt?.toISOString(),
     updatedAt: course.updatedAt?.toISOString(),
-    // Serialize instructors IDs
+    // Serialize IDs
     instructors: course.instructors?.map((id: any) => id.toString()) || [],
-    // FIX: Serialize Category ID (handle potential null/undefined)
     category: course.category ? course.category.toString() : "",
     chapters: course.chapters?.map((ch: any) => ({
       ...ch,
@@ -26,7 +24,7 @@ async function getCourse(id: string) {
   };
 }
 
-export default async function EditCoursePage(props: {
+export default async function InstructorEditCoursePage(props: {
   params: Promise<{ id: string }>;
 }) {
   const params = await props.params;
@@ -36,7 +34,7 @@ export default async function EditCoursePage(props: {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto min-h-screen">
-      <CourseForm initialData={course} />
+      <CourseForm initialData={course} userRole="instructor" />
     </div>
   );
 }

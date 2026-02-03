@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Trash2, Shield, User } from "lucide-react";
+import {
+  Mail,
+  Trash2,
+  Shield,
+  User,
+  Briefcase,
+  GraduationCap,
+  Calendar,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface UserData {
@@ -9,6 +17,7 @@ interface UserData {
   name: string;
   email: string;
   role: string;
+  category?: { name: string };
   provider: string;
   image?: string;
   createdAt: string;
@@ -31,8 +40,37 @@ export const UsersTable = ({ users }: { users: UserData[] }) => {
     }
   };
 
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case "admin":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
+            <Shield className="w-3 h-3" /> Admin
+          </span>
+        );
+      case "instructor":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <GraduationCap className="w-3 h-3" /> Instructor
+          </span>
+        );
+      case "organizer":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+            <Calendar className="w-3 h-3" /> Organizer
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
+            <User className="w-3 h-3" /> Participant
+          </span>
+        );
+    }
+  };
+
   return (
-    <div className="bg-white border border-slate-200 overflow-hidden">
+    <div className="bg-white border border-slate-200 overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
@@ -42,6 +80,9 @@ export const UsersTable = ({ users }: { users: UserData[] }) => {
               </th>
               <th className="py-4 px-6 font-bold text-slate-500 uppercase tracking-wider text-xs">
                 Role
+              </th>
+              <th className="py-4 px-6 font-bold text-slate-500 uppercase tracking-wider text-xs">
+                Profession
               </th>
               <th className="py-4 px-6 font-bold text-slate-500 uppercase tracking-wider text-xs">
                 Auth
@@ -84,24 +125,16 @@ export const UsersTable = ({ users }: { users: UserData[] }) => {
                       </div>
                     </div>
                   </td>
+                  <td className="py-4 px-6">{getRoleBadge(user.role)}</td>
                   <td className="py-4 px-6">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border
-                    ${
-                      user.role === "admin"
-                        ? "bg-indigo-50 text-indigo-700 border-indigo-200"
-                        : user.role === "instructor"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-slate-50 text-slate-600 border-slate-200"
-                    }`}
-                    >
-                      {user.role === "admin" ? (
-                        <Shield className="w-3 h-3" />
-                      ) : (
-                        <User className="w-3 h-3" />
-                      )}
-                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                    </span>
+                    {user.category ? (
+                      <span className="flex items-center gap-1 text-slate-700">
+                        <Briefcase className="w-3 h-3 text-slate-400" />{" "}
+                        {user.category.name}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 text-xs italic">-</span>
+                    )}
                   </td>
                   <td className="py-4 px-6">
                     <span className="text-xs text-slate-500 uppercase font-medium">
@@ -124,7 +157,7 @@ export const UsersTable = ({ users }: { users: UserData[] }) => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-slate-500">
+                <td colSpan={6} className="py-8 text-center text-slate-500">
                   No users found.
                 </td>
               </tr>

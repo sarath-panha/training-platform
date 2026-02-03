@@ -1,14 +1,27 @@
 "use client";
 
 import React, { useState } from "react";
-import { PlayCircle, Lock, ChevronDown, ChevronUp, X, Eye } from "lucide-react";
+import {
+  PlayCircle,
+  Lock,
+  ChevronDown,
+  ChevronUp,
+  X,
+  Eye,
+  CheckCircle,
+} from "lucide-react";
 
 interface Props {
   chapters: any[];
-  enrollmentStatus: string | null;
+  enrollmentStatus?: string | null;
+  isAdmin?: boolean; // New prop for Admin Review
 }
 
-export const PublicCurriculum = ({ chapters, enrollmentStatus }: Props) => {
+export const PublicCurriculum = ({
+  chapters,
+  enrollmentStatus,
+  isAdmin = false,
+}: Props) => {
   const [openChapter, setOpenChapter] = useState<number | null>(0);
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
 
@@ -20,11 +33,11 @@ export const PublicCurriculum = ({ chapters, enrollmentStatus }: Props) => {
     return match && match[2].length === 11 ? match[2] : null;
   };
 
-  // Only allow playing if active OR if it is a preview
   const isEnrolled = enrollmentStatus === "active";
 
   const handleVideoClick = (url: string, isPreview: boolean) => {
-    if (isEnrolled || isPreview) {
+    // Admins can watch EVERYTHING. Users check enrollment or preview status.
+    if (isAdmin || isEnrolled || isPreview) {
       setPlayingVideo(url);
     }
   };
@@ -84,8 +97,9 @@ export const PublicCurriculum = ({ chapters, enrollmentStatus }: Props) => {
             {openChapter === idx && (
               <div className="bg-white">
                 {chapter.videos.map((video: any, vIdx: number) => {
-                  // Lock if not enrolled AND not preview
-                  const isLocked = !isEnrolled && !video.isPreview;
+                  // Determine if locked
+                  const isLocked = !isAdmin && !isEnrolled && !video.isPreview;
+
                   return (
                     <div
                       key={vIdx}
@@ -111,7 +125,14 @@ export const PublicCurriculum = ({ chapters, enrollmentStatus }: Props) => {
                       </div>
 
                       <div className="flex items-center gap-4">
-                        {!isEnrolled && video.isPreview && (
+                        {/* Admin Badge */}
+                        {isAdmin && (
+                          <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-0.5 border border-slate-100 rounded">
+                            Admin View
+                          </span>
+                        )}
+                        {/* Preview Badge */}
+                        {!isEnrolled && video.isPreview && !isAdmin && (
                           <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 uppercase tracking-wider px-2 py-0.5 bg-emerald-50 rounded">
                             <Eye className="w-3 h-3" /> Preview
                           </span>

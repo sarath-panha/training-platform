@@ -17,7 +17,7 @@ export const InstructorsTable = ({
 }: {
   instructors: Instructor[];
 }) => (
-  <div className="bg-white border border-slate-200 overflow-hidden">
+  <div className="bg-white border border-slate-200 overflow-hidden rounded-lg shadow-sm">
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
         <thead className="bg-slate-50 border-b border-slate-200">
