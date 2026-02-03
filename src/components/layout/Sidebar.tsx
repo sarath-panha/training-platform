@@ -15,17 +15,21 @@ import {
   FolderOpen,
   BookUser,
   CreditCard,
-  MessageSquare, // Added Icon
+  MessageSquare,
+  Building2, // For Organizers
+  Calendar, // For Events
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Courses", href: "/admin/courses", icon: Layers },
+  { label: "Events", href: "/admin/events", icon: Calendar }, // Added
   { label: "Categories", href: "/admin/categories", icon: FolderOpen },
   { label: "Instructors", href: "/admin/instructors", icon: GraduationCap },
+  { label: "Organizers", href: "/admin/organizers", icon: Building2 }, // Added
   { label: "Enrollments", href: "/admin/enrollments", icon: BookUser },
   { label: "Billing", href: "/admin/billing", icon: CreditCard },
-  { label: "Reviews", href: "/admin/reviews", icon: MessageSquare }, // Added Item
+  { label: "Reviews", href: "/admin/reviews", icon: MessageSquare },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Reports", href: "/admin/reports", icon: FileText },
